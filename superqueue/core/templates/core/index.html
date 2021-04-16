@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'main.css' %}">
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark bg-dark">
+    {% if user %}
+        <a class="navbar-brand text-light">Hello admin, {{ user }}</a>
+
+        <div class="logout float-right d-flex">
+            <span class="text-light m-2">Також ви можете зареєструватись по телефону +380 99 632 0223</span>
+            <!-- Button trigger modal -->
+            <form action="/logout_user/" method="get">
+                <button type="submit" class="btn btn-primary">
+                    Вийти
+                </button>
+            </form>
+
+        </div>
+    {% endif %}
+    {% if user == None %}
+        <a class="navbar-brand text-light">Елетронна черга</a>
+        <div class="login float-right">
+            <span class="text-light m-2">Також ви можете зареєструватись по телефону +380 99 632 0223</span>
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                Увійти
+            </button>
+        </div>
+    {% endif %}
+
+</nav>
+
+<div class="container">
+    {% if error %}
+        <p class="text-danger">{{ error }}</p>
+    {% endif %}
+
+    <div class="row">
+        {% if user == None %}
+            {% for table in data %}
+                <div class="col-4 table">
+                    <h3>{{ table.name }}</h3>
+                    {% for person in table.persons %}
+                        <div class="person">
+                            <p class="person-name">Ім'я людини: {{ person.name }}</p>
+                            <p class="person-time">Дата реєстрації: {{ person.time }}</p>
+                            <p class="person-time_waits">в черзі:
+                                {{ person.time_waits.days }}днів,
+                                {{ person.time_waits.hours }}
+                            </p>
+                            <p class="person-id">номер: {{ person.id }}</p>
+                        </div>
+
+                    {% endfor %}
+                    <form method="post" action="/add_in_queue/">
+                        {% csrf_token %}
+                        <input type="text" value="{{ table.id }}" style="display: none" name="table_id">
+                        <div class="wrapper">
+                            <input type="text" name="name" class="form-control" placeholder="ваше імя">
+                            <button type="submit" class="btn btn-primary">OK</button>
+                        </div>
+
+                    </form>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if user %}
+            {% for table in data %}
+                <div class="col-4 table">
+                    <h3>{{ table.name }}</h3>
+                    {% for person in table.persons %}
+                        <form class="person {{ person.color_class }}" action="/delete_from_queue/" method="post">
+                            {% csrf_token %}
+                            <input type="text" name="person_id" value="{{ person.id }}" hidden="true">
+                            <input type="text" name="table_id" value="{{ table.id }}" hidden="true">
+                            <p class="person-name">Ім'я людини: {{ person.name }}</p>
+
+                            <p class="person-time">Дата реєстрації: {{ person.time }}</p>
+                            <p class="person-time_waits">в черзі:
+                                {{ person.time_waits.days }}днів,
+                                {{ person.time_waits.hours }}
+                            </p>
+
+                            <p class="person-id">номер: {{ person.id }}</p>
+                            <div class="highlits">
+                                <a href="#" class="mark mark-red" onclick="markClick(event, {{ person.id }})"></a>
+                                <a href="#" class="mark mark-yellow" onclick="markClick(event, {{ person.id }})"></a>
+                                <a href="#" class="mark mark-light" onclick="markClick(event, {{ person.id }})"></a>
+                            </div>
+                            <button type="submit" class="btn btn-danger">Remove</button>
+                        </form>
+                    {% endfor %}
+
+                </div>
+            {% endfor %}
+        {% endif %}
+
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Форма входу</h5>
+                <button type="button" id="closeModal" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="get" action="/admin_page/">
+
+                    <div class="form-group">
+                        <label for="exampleInputLogin">Логін</label>
+                        <input name="username" type="text" class="form-control" id="inputLogin"
+                               placeholder="Enter login">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Password</label>
+                        <input name="password" type="password" class="form-control" id="inputPassword"
+                               placeholder="Password">
+                        <small id="signInfo" class="form-text text-danger" style="display: none;">Логін або пароль не
+                            вірний
+                        </small>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
+                        <button id="loginBtn" type="submit" class="btn btn-primary">Увійти</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script
+        src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+</script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+</script>
+
+<script src="{% static "script.js" %}"></script>
+</body>
+
+</html>

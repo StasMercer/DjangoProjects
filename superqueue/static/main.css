@@ -1,0 +1,59 @@
+.table {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.person {
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 5px;
+    box-shadow: 2px 0 8px rgba(41, 41, 41, 0.281);
+    border-radius: 4px;
+}
+
+.wrapper {
+    display: flex;
+    padding: 5px;
+}
+
+.wrapper button {
+    margin-left: 5px;
+}
+
+.highlits {
+    display: flex;
+}
+
+.mark {
+    margin: 3px;
+    display: block;
+    width: 20px;
+    height: 20px;
+    background-color: #FFC107;
+    border: 1px solid grey;
+}
+
+.bg-danger {
+    color: white;
+
+}
+
+.bg-danger button {
+    border: 1px solid rgba(0, 0, 0, 0.5);
+
+}
+
+.mark-light {
+    background-color: #F8F9FA;
+}
+
+.mark-yellow {
+    background-color: #FFC107;
+}
+
+.mark-red {
+    background-color: #DC3545;
+}
