@@ -1,0 +1,3 @@
+[submodule "comet"]
+	path = comet
+	url = https://github.com/StasMercer/comet.git
